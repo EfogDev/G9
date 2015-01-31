@@ -4,9 +4,6 @@
 #include <screenshoter.h>
 
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent) {
-    show();
-
-    FullScreenshoter sh;
-    sh.getScreehshot();
-    //sh.saveToFile("gray.jpg", "jpg", 100);
+    PartScreenshoter* ps = new PartScreenshoter(settings);
+    ps->makeScreenshot();
 }

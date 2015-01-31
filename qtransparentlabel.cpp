@@ -8,7 +8,7 @@ QTransparentLabel::QTransparentLabel(double opacity, QWidget *parent): QLabel(pa
 void QTransparentLabel::paintEvent(QPaintEvent *e) {
     QPainter paint;
     paint.begin(this);
-    paint.setBrush(QBrush(QColor(0, 0, 0, (int) (255 * opacity))));
+    paint.setBrush(QBrush(QColor(20, 20, 20, (int) (255 * opacity))));
     paint.setPen(Qt::NoPen);
     paint.drawRect(0, 0, width(), height());
     paint.end();

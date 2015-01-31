@@ -5,27 +5,37 @@
 #include <QWidget>
 #include <QtCore>
 #include <QtWidgets>
+#include <mainwindow.h>
 
-class FullScreenshoter: public QWidget {
+class FullScreenshoter: public QMainWindow {
     Q_OBJECT
 
     public:
-        FullScreenshoter(QWidget *parent = 0);
-        virtual void getScreehshot();
+        FullScreenshoter(Settings settings) { this->settings = settings; };
+        virtual void makeScreenshot();
         void saveToFile(QString filename, const char* format, int quality = 100);
-        QPixmap* screenshot;
-        QPixmap* grayscale;
+        QPixmap screenshot;
 
-    private:
-        void generateGrayscale();
+    protected:
+        Settings settings;
 };
 
 class PartScreenshoter: public FullScreenshoter {
     Q_OBJECT
 
     public:
-        PartScreenshoter(QWidget *parent = 0);
-        void getScreehshot();
+        PartScreenshoter(Settings settings): FullScreenshoter(settings) {};
+        void makeScreenshot();
+
+    private:
+        bool selecting = false;
+        QPoint  start;
+        QLabel  layout;
+        QLabel  selected;
+        bool eventFilter(QObject* obj, QEvent* event);
+
+        Settings settings;
+        QRect rect;
 };
 
 #endif // FULLSCREENSHOTER_H
