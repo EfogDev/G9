@@ -12,8 +12,9 @@ struct Settings {
         unsigned int saveQuality = 100;
         bool autoCopy            = false;
         bool autoSend            = true;
-        double opacity           = 0.7;
+        double opacity           = 0.82;
         QRgb frameColor          = qRgb(120, 120, 120);
+        bool sound               = true;
 };
 
 class MainWindow: public QMainWindow {

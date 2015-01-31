@@ -1,5 +1,6 @@
 #include "screenshoter.h"
 #include "qtransparentlabel.h"
+#include "math.h"
 
 /**************************************/
 /*           FullScreenshoter         */
@@ -40,28 +41,76 @@ void PartScreenshoter::makeScreenshot() {
     QScreen* screen = QApplication::primaryScreen();
     screenshot = screen->grabWindow(QApplication::desktop()->winId());
 
+    int screenWidth = QApplication::desktop()->width();
+    int screenHeight = QApplication::desktop()->height();
+
     QLabel* image = new QLabel(this);
     image->show();
     image->setPixmap(screenshot);
     image->move(0, 0);
-    image->resize(QApplication::desktop()->width(), QApplication::desktop()->height());
+    image->resize(screenWidth, screenHeight);
 
-    QTransparentLabel* overlay = new QTransparentLabel(settings.opacity, this);
-    overlay->show();
-    overlay->move(0, 0);
-    overlay->resize(QApplication::desktop()->width(), QApplication::desktop()->height());
+    /* Overlays */
 
-    selected.setParent(this);
-    selected.show();
-    selected.move(0, 0);
+    QString borderStyle = "border: 1px solid gray;";
+
+    topLeftOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), this);
+    topLeftOverlay->show();
+    topLeftOverlay->setStyleSheet(borderStyle);
+
+    topRightOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), this);
+    topRightOverlay->show();
+    topRightOverlay->setStyleSheet(borderStyle);
+
+    bottomLeftOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), this);
+    bottomLeftOverlay->show();
+    bottomLeftOverlay->setStyleSheet(borderStyle);
+
+    bottomRightOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), this);
+    bottomRightOverlay->show();
+    bottomRightOverlay->setStyleSheet(borderStyle);
+
+    moveOverlays();
+
+    /* End overlays */
 
     installEventFilter(this);
-
     setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
     setWindowTitle("Screenshot");
     showFullScreen();
 
     setCursor(QCursor(QPixmap(":/img/cursor.ico")));
+}
+
+void PartScreenshoter::moveOverlays(bool isSelecting) {
+    int screenWidth = QApplication::desktop()->width();
+    int screenHeight = QApplication::desktop()->height();
+
+    if (!isSelecting) {
+        topLeftOverlay->move(0, 0);
+        topLeftOverlay->resize(cursor().pos().x(), cursor().pos().y());
+
+        topRightOverlay->move(cursor().pos().x() - 1, 0);
+        topRightOverlay->resize(screenWidth - cursor().pos().x(), cursor().pos().y());
+
+        bottomLeftOverlay->move(0, cursor().pos().y() - 1);
+        bottomLeftOverlay->resize(cursor().pos().x(), screenHeight - cursor().pos().y());
+
+        bottomRightOverlay->move(cursor().pos().x() - 1, cursor().pos().y() - 1);
+        bottomRightOverlay->resize(screenWidth - cursor().pos().x(), screenHeight - cursor().pos().y());
+    } else {
+        topLeftOverlay->move(0, 0);
+        topLeftOverlay->resize(rect.x(), rect.y());
+
+        topRightOverlay->move(cursor().pos().x() - 1, 0);
+        topRightOverlay->resize(screenWidth - rect.width() - rect.x(), rect.y());
+
+        bottomLeftOverlay->move(0, rect.y() - 1);
+        bottomLeftOverlay->resize(rect.x(), screenHeight - rect.height() - rect.y());
+
+        bottomRightOverlay->move(rect.x() - 1, rect.y() - 1);
+        bottomRightOverlay->resize(screenWidth - rect.width() - rect.x(), screenHeight - rect.height() - rect.y());
+    }
 }
 
 bool PartScreenshoter::eventFilter(QObject* obj, QEvent* event) {
@@ -76,13 +125,11 @@ bool PartScreenshoter::eventFilter(QObject* obj, QEvent* event) {
     if (event->type() == QEvent::MouseButtonPress) {
         start = QPoint(((QMouseEvent*) event)->x(), ((QMouseEvent*) event)->y());
         selecting = true;
-        selected.setGeometry(start.x(), start.y(), 20, 20);
-        selected.show();
     }
 
-    if (event->type() == QEvent::MouseMove && selecting) {
-        int tempX = ((QMouseEvent*) event)->x();
-        int tempY = ((QMouseEvent*) event)->y();
+    if (event->type() == QEvent::HoverMove) {
+        int tempX = ((QHoverEvent*) event)->pos().x();
+        int tempY = ((QHoverEvent*) event)->pos().y();
 
         if (tempX < start.x()) {
             rect.setX(tempX);
@@ -100,7 +147,9 @@ bool PartScreenshoter::eventFilter(QObject* obj, QEvent* event) {
             rect.setHeight(tempY - start.y());
         }
 
-        QImage temp = QImage(rect.width(), rect.height(), QImage::Format_RGB32);
+        moveOverlays(selecting);
+
+        /*QImage temp = QImage(rect.width(), rect.height(), QImage::Format_RGB888);
         for (int i = rect.x(); i < rect.x() + rect.width(); i++) {
             for (int j = rect.y(); j < rect.y() + rect.height(); j++) {
 
@@ -121,7 +170,13 @@ bool PartScreenshoter::eventFilter(QObject* obj, QEvent* event) {
         }
 
         selected.setPixmap(QPixmap::fromImage(temp));
-        selected.setGeometry(rect);
+
+        if (selected.x() != rect.x() || selected.y() != rect.y())
+            selected.setGeometry(rect);
+        else
+            selected.resize(rect.width(), rect.height());*/
+
+
     }
 
     if (event->type() == QEvent::MouseButtonRelease) {
