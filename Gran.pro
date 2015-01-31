@@ -15,10 +15,10 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
         screenshoter.cpp \
-    qtransparentlable.cpp
+        qtransparentlabel.cpp
 
 HEADERS  += mainwindow.h \
             screenshoter.h \
-    qtransparentlable.h
+            qtransparentlabel.h
 
 CONFIG += C++11
