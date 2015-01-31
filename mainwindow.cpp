@@ -8,5 +8,5 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent) {
 
     FullScreenshoter sh;
     sh.getScreehshot();
-    sh.saveToFile("gray.png", "png", 100);
+    //sh.saveToFile("gray.jpg", "jpg", 100);
 }

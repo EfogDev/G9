@@ -13,8 +13,8 @@ class FullScreenshoter: public QWidget {
         FullScreenshoter(QWidget *parent = 0);
         virtual void getScreehshot();
         void saveToFile(QString filename, const char* format, int quality = 100);
-        QPixmap* screenshot = 0;
-        QPixmap* grayscale = 0;
+        QPixmap* screenshot;
+        QPixmap* grayscale;
 
     private:
         void generateGrayscale();

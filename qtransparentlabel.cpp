@@ -1,4 +1,4 @@
-#include "qtransparentlable.h"
+#include "qtransparentlabel.h"
 #include <QPainter>
 
 QTransparentLabel::QTransparentLabel(double opacity, QWidget *parent): QLabel(parent) {

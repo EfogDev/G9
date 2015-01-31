@@ -13,7 +13,8 @@ void FullScreenshoter::getScreehshot() {
     QPixmap temp = screen->grabWindow(QApplication::desktop()->winId());
 
     screenshot = &temp;
-    generateGrayscale();
+    qDebug() << screenshot->width() << screenshot->height();
+    saveToFile("gray.jpg", "jpg", 100);
 }
 
 void FullScreenshoter::generateGrayscale() {
@@ -33,8 +34,9 @@ void FullScreenshoter::generateGrayscale() {
 }
 
 void FullScreenshoter::saveToFile(QString filename, const char* format, int quality) {
+    qDebug() << screenshot->width() << screenshot->height();
     //screenshot->save(filename, format, quality);
-    qDebug() << grayscale->save(filename, format, quality) << grayscale->isNull();
+    //qDebug() << grayscale->isNull() << grayscale->save(filename, format, quality);
 }
 
 /**************************************/
