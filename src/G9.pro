@@ -4,22 +4,28 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui multimedia network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = Gran
+TARGET = G9
 TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
         screenshoter.cpp \
-        qtransparentlabel.cpp
+        qtransparentlabel.cpp \
+    popupwindow.cpp
 
 HEADERS  += mainwindow.h \
             screenshoter.h \
-            qtransparentlabel.h
+            qtransparentlabel.h \
+    popupwindow.h
 
 CONFIG += C++11
 
-RESOURCES += images.qrc
+RESOURCES += \
+    resources.qrc
+
+DISTFILES += \
+    popup.qss

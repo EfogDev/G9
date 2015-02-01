@@ -1,6 +1,7 @@
 #include "screenshoter.h"
 #include "qtransparentlabel.h"
 #include "math.h"
+#include "QSound"
 
 /**************************************/
 /*           FullScreenshoter         */
@@ -17,6 +18,9 @@ void FullScreenshoter::makeScreenshot() {
     if (settings.autoCopy) {
         QApplication::clipboard()->setImage(screenshot.toImage());
     }
+
+    QSound sound(":/rc/sound.wav");
+    sound.play();
 }
 
 void FullScreenshoter::saveToFile(QString filename, const char* format, int quality) {
@@ -31,6 +35,17 @@ void FullScreenshoter::saveToFile(QString filename, const char* format, int qual
     }
     else
         screenshot.save(filename + "Screenshot " + time.toString("dd.MM.yyyy hh:mm:ss") + "." + format, format, 40); //magic number
+}
+
+void FullScreenshoter::playSound() {
+
+    QFile::copy(":/rc/sound.wav", QDir::tempPath() + "/sound.wav");
+#ifdef Q_OS_LINUX
+    QProcess::startDetached("play " + QDir::tempPath() + "/sound.wav");
+#else
+    QSound::play(QDir::tempPath() + "/sound.wav");
+#endif
+
 }
 
 /**************************************/
@@ -55,19 +70,15 @@ void PartScreenshoter::makeScreenshot() {
     QString borderStyle = "border: 1px solid gray;";
 
     topLeftOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), this);
-    topLeftOverlay->show();
     topLeftOverlay->setStyleSheet(borderStyle);
 
     topRightOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), this);
-    topRightOverlay->show();
     topRightOverlay->setStyleSheet(borderStyle);
 
     bottomLeftOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), this);
-    bottomLeftOverlay->show();
     bottomLeftOverlay->setStyleSheet(borderStyle);
 
     bottomRightOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), this);
-    bottomRightOverlay->show();
     bottomRightOverlay->setStyleSheet(borderStyle);
 
     moveOverlays();
@@ -79,7 +90,7 @@ void PartScreenshoter::makeScreenshot() {
     setWindowTitle("Screenshot");
     showFullScreen();
 
-    setCursor(QCursor(QPixmap(":/img/cursor.ico")));
+    setCursor(QCursor(QPixmap(":/rc/cursor.ico")));
 }
 
 void PartScreenshoter::moveOverlays(bool isSelecting) {
@@ -98,18 +109,18 @@ void PartScreenshoter::moveOverlays(bool isSelecting) {
 
         bottomRightOverlay->move(cursor().pos().x() - 1, cursor().pos().y() - 1);
         bottomRightOverlay->resize(screenWidth - cursor().pos().x(), screenHeight - cursor().pos().y());
-    } else {
+    } else { //тут происходит жуткая магия
         topLeftOverlay->move(0, 0);
-        topLeftOverlay->resize(rect.x(), rect.y());
+        topLeftOverlay->resize(rect.x() + rect.width(), rect.y());
 
-        topRightOverlay->move(cursor().pos().x() - 1, 0);
-        topRightOverlay->resize(screenWidth - rect.width() - rect.x(), rect.y());
+        topRightOverlay->move(rect.x() + rect.width() - 1, 0);
+        topRightOverlay->resize(screenWidth - rect.x() - rect.width(), rect.y() + rect.height());
 
         bottomLeftOverlay->move(0, rect.y() - 1);
-        bottomLeftOverlay->resize(rect.x(), screenHeight - rect.height() - rect.y());
+        bottomLeftOverlay->resize(rect.x(), screenHeight - rect.y());
 
-        bottomRightOverlay->move(rect.x() - 1, rect.y() - 1);
-        bottomRightOverlay->resize(screenWidth - rect.width() - rect.x(), screenHeight - rect.height() - rect.y());
+        bottomRightOverlay->move(rect.x() - 1, rect.y() + rect.height() - 1);
+        bottomRightOverlay->resize(screenWidth - rect.x(), screenHeight - rect.y() - rect.height());
     }
 }
 
@@ -148,35 +159,6 @@ bool PartScreenshoter::eventFilter(QObject* obj, QEvent* event) {
         }
 
         moveOverlays(selecting);
-
-        /*QImage temp = QImage(rect.width(), rect.height(), QImage::Format_RGB888);
-        for (int i = rect.x(); i < rect.x() + rect.width(); i++) {
-            for (int j = rect.y(); j < rect.y() + rect.height(); j++) {
-
-                //рисуем рамку
-                if (i == rect.x() || i == rect.x() + rect.width() - 1) {
-                    temp.setPixel(i - rect.x(), j - rect.y(), settings.frameColor);
-                    continue;
-                }
-
-                if (j == rect.y() || j == rect.y() + rect.height() - 1) {
-                    temp.setPixel(i - rect.x(), j - rect.y(), settings.frameColor);
-                    continue;
-                }
-                //закончили рисовать
-
-                temp.setPixel(i - rect.x(), j - rect.y(), screenshot.toImage().pixel(i, j));
-            }
-        }
-
-        selected.setPixmap(QPixmap::fromImage(temp));
-
-        if (selected.x() != rect.x() || selected.y() != rect.y())
-            selected.setGeometry(rect);
-        else
-            selected.resize(rect.width(), rect.height());*/
-
-
     }
 
     if (event->type() == QEvent::MouseButtonRelease) {
@@ -201,6 +183,8 @@ bool PartScreenshoter::eventFilter(QObject* obj, QEvent* event) {
         if (settings.autoSend) {
             //как-нибудь потом
         }
+
+        playSound();
 
         selecting = false;
         close();

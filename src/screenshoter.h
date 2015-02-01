@@ -19,6 +19,7 @@ class FullScreenshoter: public QMainWindow {
 
     protected:
         Settings settings;
+        void playSound();
 };
 
 class PartScreenshoter: public FullScreenshoter {

@@ -1,0 +1,4 @@
+PopupWindow {
+    background: #444;
+    border-radius: 16px;
+}

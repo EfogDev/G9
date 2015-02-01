@@ -25,6 +25,8 @@ class MainWindow: public QMainWindow {
 
     private:
         Settings settings;
+        bool checkOpened();
+        void startListen();
 
 };
 

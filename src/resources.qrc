@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/rc">
+        <file>cursor.ico</file>
+        <file>sound.wav</file>
+        <file>popup.qss</file>
+        <file>logo.png</file>
+    </qresource>
+</RCC>
