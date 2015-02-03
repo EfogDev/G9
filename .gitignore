@@ -1,3 +1,4 @@
 *.user
+*.user.*
 Source/.idea/*
 Source/.idea
