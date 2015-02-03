@@ -19,40 +19,58 @@ void FullScreenshoter::makeScreenshot() {
         QApplication::clipboard()->setImage(screenshot.toImage());
     }
 
-    QSound sound(":/rc/sound.wav");
-    sound.play();
+    playSound();
 }
 
-void FullScreenshoter::saveToFile(QString filename, const char* format, int quality) {
+void FullScreenshoter::saveToFile(QString filename, QString format, int quality) {
     QDir directory;
     if (!directory.exists(filename))
         directory.mkdir(filename);
 
     QDateTime time = QDateTime::currentDateTime();
 
-    if (!strcmp(format, "jpg") && !strcmp(format, "gif")) {
-        screenshot.save(filename + "Screenshot " + time.toString("dd.MM.yyyy hh:mm:ss") + "." + format, format, quality);
-    }
+    if (format == "jpg" || format == "gif")
+        screenshot.save(filename + "Screenshot " + time.toString("dd.MM.yyyy hh:mm:ss") + "." + format, format.toUtf8().constData(), quality);
     else
-        screenshot.save(filename + "Screenshot " + time.toString("dd.MM.yyyy hh:mm:ss") + "." + format, format, 40); //magic number
+        screenshot.save(filename + "Screenshot " + time.toString("dd.MM.yyyy hh:mm:ss") + "." + format, format.toUtf8().constData(), 40); //magic number
+
+    popup = new PopupWindow("Информация", "Скриншот успешно сохранен.");
+    popup->show();
 }
 
 void FullScreenshoter::playSound() {
+    if (settings.sound) {
+        QFile::copy(":/rc/sound.wav", QDir::tempPath() + "/sound.wav");
 
-    QFile::copy(":/rc/sound.wav", QDir::tempPath() + "/sound.wav");
-#ifdef Q_OS_LINUX
-    QProcess::startDetached("play " + QDir::tempPath() + "/sound.wav");
-#else
-    QSound::play(QDir::tempPath() + "/sound.wav");
-#endif
+        #ifdef Q_OS_LINUX
+            QProcess::startDetached("play " + QDir::tempPath() + "/sound.wav");
+        #else
+            QSound::play(QDir::tempPath() + "/sound.wav");
+        #endif
+    }
+}
 
+void FullScreenshoter::setSettings(Settings settings) {
+    this->settings = settings;
 }
 
 /**************************************/
 /*           PartScreenshoter         */
 /**************************************/
 
+PartScreenshoter::PartScreenshoter(Settings settings): FullScreenshoter(settings) {
+
+}
+
 void PartScreenshoter::makeScreenshot() {
+    rect.setX(cursor().pos().x());
+    rect.setY(cursor().pos().y());
+    rect.setWidth(3);
+    rect.setHeight(3);
+
+    start = QPoint(rect.x(), rect.y());
+    selecting = false;
+
     QScreen* screen = QApplication::primaryScreen();
     screenshot = screen->grabWindow(QApplication::desktop()->winId());
 
@@ -65,31 +83,15 @@ void PartScreenshoter::makeScreenshot() {
     image->move(0, 0);
     image->resize(screenWidth, screenHeight);
 
-    /* Overlays */
-
-    QString borderStyle = "border: 1px solid gray;";
-
-    topLeftOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), this);
-    topLeftOverlay->setStyleSheet(borderStyle);
-
-    topRightOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), this);
-    topRightOverlay->setStyleSheet(borderStyle);
-
-    bottomLeftOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), this);
-    bottomLeftOverlay->setStyleSheet(borderStyle);
-
-    bottomRightOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), this);
-    bottomRightOverlay->setStyleSheet(borderStyle);
-
+    topLeftOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), settings.frameColor, this);
+    topRightOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), settings.frameColor, this);
+    bottomLeftOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), settings.frameColor, this);
+    bottomRightOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), settings.frameColor, this);
     moveOverlays();
 
-    /* End overlays */
-
     installEventFilter(this);
-    setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
-    setWindowTitle("Screenshot");
+    setWindowFlags(Qt::WindowStaysOnTopHint);
     showFullScreen();
-
     setCursor(QCursor(QPixmap(":/rc/cursor.ico")));
 }
 
@@ -97,30 +99,31 @@ void PartScreenshoter::moveOverlays(bool isSelecting) {
     int screenWidth = QApplication::desktop()->width();
     int screenHeight = QApplication::desktop()->height();
 
+    //тут происходит жуткая магия
     if (!isSelecting) {
-        topLeftOverlay->move(0, 0);
-        topLeftOverlay->resize(cursor().pos().x(), cursor().pos().y());
+        topLeftOverlay->move(-1, -1);
+        topLeftOverlay->resize(cursor().pos().x() + 1, cursor().pos().y() + 1);
 
-        topRightOverlay->move(cursor().pos().x() - 1, 0);
-        topRightOverlay->resize(screenWidth - cursor().pos().x(), cursor().pos().y());
+        topRightOverlay->move(cursor().pos().x() - 1, -1);
+        topRightOverlay->resize(screenWidth - cursor().pos().x() + 3, cursor().pos().y() + 1);
 
-        bottomLeftOverlay->move(0, cursor().pos().y() - 1);
-        bottomLeftOverlay->resize(cursor().pos().x(), screenHeight - cursor().pos().y());
+        bottomLeftOverlay->move(-1, cursor().pos().y() - 1);
+        bottomLeftOverlay->resize(cursor().pos().x() + 1, screenHeight - cursor().pos().y() + 3);
 
         bottomRightOverlay->move(cursor().pos().x() - 1, cursor().pos().y() - 1);
-        bottomRightOverlay->resize(screenWidth - cursor().pos().x(), screenHeight - cursor().pos().y());
-    } else { //тут происходит жуткая магия
-        topLeftOverlay->move(0, 0);
-        topLeftOverlay->resize(rect.x() + rect.width(), rect.y());
+        bottomRightOverlay->resize(screenWidth - cursor().pos().x() + 3, screenHeight - cursor().pos().y() + 3);
+    } else {
+        topLeftOverlay->move(-1, -1);
+        topLeftOverlay->resize(rect.x() + rect.width() + 1, rect.y() + 2);
 
-        topRightOverlay->move(rect.x() + rect.width() - 1, 0);
-        topRightOverlay->resize(screenWidth - rect.x() - rect.width(), rect.y() + rect.height());
+        topRightOverlay->move(rect.x() + rect.width() - 1, -1);
+        topRightOverlay->resize(screenWidth - rect.x() - rect.width() + 3, rect.y() + rect.height() + 1);
 
-        bottomLeftOverlay->move(0, rect.y() - 1);
-        bottomLeftOverlay->resize(rect.x(), screenHeight - rect.y());
+        bottomLeftOverlay->move(-1, rect.y());
+        bottomLeftOverlay->resize(rect.x() + 1, screenHeight - rect.y() + 3);
 
         bottomRightOverlay->move(rect.x() - 1, rect.y() + rect.height() - 1);
-        bottomRightOverlay->resize(screenWidth - rect.x(), screenHeight - rect.y() - rect.height());
+        bottomRightOverlay->resize(screenWidth - rect.x() + 3, screenHeight - rect.y() - rect.height() + 3);
     }
 }
 
@@ -128,15 +131,26 @@ bool PartScreenshoter::eventFilter(QObject* obj, QEvent* event) {
     if (event->type() == QEvent::KeyPress) {
         switch (((QKeyEvent*) event)->key()) {
             case Qt::Key_Escape:
-                close();
+                selecting = false;
+                hide();
+                return QMainWindow::eventFilter(obj, event);
                 break;
         }
-    }
+    } //i dont know how and why, but it is dont working
 
     if (event->type() == QEvent::MouseButtonPress) {
         start = QPoint(((QMouseEvent*) event)->x(), ((QMouseEvent*) event)->y());
+
+        if (!selecting) {
+            rect.setX(cursor().pos().x());
+            rect.setY(cursor().pos().y());
+            rect.setWidth(2);
+            rect.setHeight(2);
+        }
+
         selecting = true;
     }
+
 
     if (event->type() == QEvent::HoverMove) {
         int tempX = ((QHoverEvent*) event)->pos().x();
@@ -162,6 +176,9 @@ bool PartScreenshoter::eventFilter(QObject* obj, QEvent* event) {
     }
 
     if (event->type() == QEvent::MouseButtonRelease) {
+        if (rect.width() < 5 || rect.height() < 5) return QMainWindow::eventFilter(obj, event);
+        if (!selecting) return QMainWindow::eventFilter(obj, event);
+
         QImage temp = QImage(rect.width(), rect.height(), QImage::Format_RGB32);
         for (int i = rect.x(); i < rect.x() + rect.width(); i++) {
             for (int j = rect.y(); j < rect.y() + rect.height(); j++) {
@@ -185,6 +202,7 @@ bool PartScreenshoter::eventFilter(QObject* obj, QEvent* event) {
         }
 
         playSound();
+
 
         selecting = false;
         close();

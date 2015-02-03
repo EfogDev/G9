@@ -14,6 +14,12 @@ class PopupWindow: public QWidget {
     public slots:
         void lowerOpacity();
         void timer();
+        void check();
+
+    private:
+        QTimer *startTimer = 0;
+        QTimer *tempTimer = 0;
+        QTimer *checkTimer = 0;
 };
 
 #endif // POPUPWINDOW_H

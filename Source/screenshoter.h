@@ -5,8 +5,9 @@
 #include <QWidget>
 #include <QtCore>
 #include <QtWidgets>
-#include <mainwindow.h>
+#include <const.h>
 #include <qtransparentlabel.h>
+#include <popupwindow.h>
 
 class FullScreenshoter: public QMainWindow {
     Q_OBJECT
@@ -14,10 +15,12 @@ class FullScreenshoter: public QMainWindow {
     public:
         FullScreenshoter(Settings settings) { this->settings = settings; }
         virtual void makeScreenshot();
-        void saveToFile(QString filename, const char* format, int quality = 100);
+        void setSettings(Settings settings);
+        void saveToFile(QString filename, QString format, int quality = 100);
         QPixmap screenshot;
 
     protected:
+        PopupWindow* popup;
         Settings settings;
         void playSound();
 };
@@ -26,17 +29,17 @@ class PartScreenshoter: public FullScreenshoter {
     Q_OBJECT
 
     public:
-        PartScreenshoter(Settings settings): FullScreenshoter(settings) {}
+        PartScreenshoter(Settings settings);
         void makeScreenshot();
 
     private:
-        bool selecting = false;
-        QPoint  start;
+        bool selecting;
+        bool block = false;
+        QPoint start;
         QTransparentLabel* topLeftOverlay;
         QTransparentLabel* topRightOverlay;
         QTransparentLabel* bottomLeftOverlay;
         QTransparentLabel* bottomRightOverlay;
-        Settings settings;
         QRect rect;
 
         bool eventFilter(QObject* obj, QEvent* event);
