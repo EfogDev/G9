@@ -34,13 +34,13 @@ class PartScreenshoter: public FullScreenshoter {
 
     private:
         bool selecting;
-        bool block = false;
         QPoint start;
         QTransparentLabel* topLeftOverlay;
         QTransparentLabel* topRightOverlay;
         QTransparentLabel* bottomLeftOverlay;
         QTransparentLabel* bottomRightOverlay;
         QRect rect;
+        QLabel* image;
 
         bool eventFilter(QObject* obj, QEvent* event);
         void moveOverlays(bool isSelecting = false);

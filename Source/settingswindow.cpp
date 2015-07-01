@@ -5,7 +5,7 @@ SettingsWindow::SettingsWindow(Settings settings, QWidget *parent): QWidget(pare
 
     connect(this, SIGNAL(destroyed()), qApp, SLOT(quit()));
 
-    setFixedSize(350, 500);
+    setFixedSize(350, 525);
     setWindowTitle("Настройки");
 
     QString groupBoxStyle = "QGroupBox {\
@@ -111,7 +111,7 @@ SettingsWindow::SettingsWindow(Settings settings, QWidget *parent): QWidget(pare
     /* Additional */
 
     additionalGroup = new QGroupBox("Дополнительные", this);
-    additionalGroup->setGeometry(20, 330, width() - 40, 130);
+    additionalGroup->setGeometry(20, 330, width() - 40, 155);
     additionalGroup->setStyleSheet(groupBoxStyle);
 
     opacityLabel = new Label("Затемнение (0-99%):", additionalGroup);
@@ -139,6 +139,16 @@ SettingsWindow::SettingsWindow(Settings settings, QWidget *parent): QWidget(pare
     frameColorButton->setGeometry(145, 70, 120, frameColorButton->height());
     connect(frameColorButton, SIGNAL(clicked()), this, SLOT(frameColorButtonClicked()));
 
+    activeGrabbingLabel = new Label(additionalGroup);
+    activeGrabbingLabel->setText("Режим Active Grabbing");
+    activeGrabbingLabel->adjustSize();
+    activeGrabbingLabel->move(63, 110);
+    connect(activeGrabbingLabel, SIGNAL(clicked()), this, SLOT(activeGrabbingLabelClicked()));
+
+    activeGrabbingCheckBox = new QCheckBox("", additionalGroup);
+    activeGrabbingCheckBox->adjustSize();
+    activeGrabbingCheckBox->move(40, 108);
+
     /* Buttons */
 
     saveButton = new QPushButton("Сохранить", this);
@@ -165,6 +175,9 @@ void SettingsWindow::load() {
 
     if (settings.autoCopy)
         autoCopyCheckBox->setChecked(true);
+
+    if (settings.activeGrabbing)
+        activeGrabbingCheckBox->setChecked(true);
 
     if (settings.sound)
         soundCheckBox->setChecked(true);
@@ -222,6 +235,10 @@ void SettingsWindow::autoSaveChanged() {
 
 void SettingsWindow::autoCopyLabelClicked() {
     autoCopyCheckBox->toggle();
+}
+
+void SettingsWindow::activeGrabbingLabelClicked() {
+    activeGrabbingCheckBox->toggle();
 }
 
 void SettingsWindow::soundLabelClicked() {
@@ -288,6 +305,10 @@ void SettingsWindow::saveClicked() {
     if (soundCheckBox->isChecked())
         settings.sound = true;
     else settings.sound = false;
+
+    if (activeGrabbingCheckBox->isChecked())
+        settings.activeGrabbing = true;
+    else settings.activeGrabbing = false;
 
     settings.opacity = opacityEdit->text().toDouble() / 100;
     settings.frameColor = frameColorImage->pixmap()->toImage().pixel(1, 1);

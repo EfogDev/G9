@@ -56,15 +56,16 @@ class SettingsWindow: public QWidget {
         Label* frameColorLabel;
         Label* frameColorImage;
         QPushButton* frameColorButton;
+        Label* activeGrabbingLabel;
+        QCheckBox* activeGrabbingCheckBox;
 
         /* Buttons */
-
         QPushButton* cancelButton;
         QPushButton* saveButton;
 
         /* Other */
-
         Settings settings;
+
         void load();
 
     signals:
@@ -75,6 +76,7 @@ class SettingsWindow: public QWidget {
         void autoSaveLabelClicked();
         void autoCopyLabelClicked();
         void soundLabelClicked();
+        void activeGrabbingLabelClicked();
         void saveFormatComboBoxSelected(int index);
         void saveDirButtonClicked();
         void frameColorButtonClicked();

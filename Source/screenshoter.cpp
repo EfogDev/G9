@@ -30,9 +30,9 @@ void FullScreenshoter::saveToFile(QString filename, QString format, int quality)
     QDateTime time = QDateTime::currentDateTime();
 
     if (format == "jpg" || format == "gif")
-        screenshot.save(filename + "Screenshot " + time.toString("dd.MM.yyyy hh:mm:ss") + "." + format, format.toUtf8().constData(), quality);
+        screenshot.save(filename + "/Screenshot " + time.toString("dd.MM.yyyy hh:mm:ss") + "." + format, format.toUtf8().constData(), quality);
     else
-        screenshot.save(filename + "Screenshot " + time.toString("dd.MM.yyyy hh:mm:ss") + "." + format, format.toUtf8().constData(), 40); //magic number
+        screenshot.save(filename + "/Screenshot " + time.toString("dd.MM.yyyy hh:mm:ss") + "." + format, format.toUtf8().constData(), 40); //magic number
 
     popup = new PopupWindow("Информация", "Скриншот успешно сохранен.");
     popup->show();
@@ -43,7 +43,8 @@ void FullScreenshoter::playSound() {
         QFile::copy(":/rc/sound.wav", QDir::tempPath() + "/sound.wav");
 
         #ifdef Q_OS_LINUX
-            QProcess::startDetached("play " + QDir::tempPath() + "/sound.wav");
+            QProcess *p = new QProcess();
+            p->startDetached("play " + QDir::tempPath() + "/sound.wav");
         #else
             QSound::play(QDir::tempPath() + "/sound.wav");
         #endif
@@ -59,7 +60,21 @@ void FullScreenshoter::setSettings(Settings settings) {
 /**************************************/
 
 PartScreenshoter::PartScreenshoter(Settings settings): FullScreenshoter(settings) {
+    int screenWidth = QApplication::desktop()->width();
+    int screenHeight = QApplication::desktop()->height();
 
+    image = new QLabel(this);
+    image->show();
+    image->move(0, 0);
+    image->resize(screenWidth, screenHeight);
+
+    if (settings.activeGrabbing)
+        image->setVisible(false);
+
+    topLeftOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), settings.frameColor, this);
+    topRightOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), settings.frameColor, this);
+    bottomLeftOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), settings.frameColor, this);
+    bottomRightOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), settings.frameColor, this);
 }
 
 void PartScreenshoter::makeScreenshot() {
@@ -73,24 +88,13 @@ void PartScreenshoter::makeScreenshot() {
 
     QScreen* screen = QApplication::primaryScreen();
     screenshot = screen->grabWindow(QApplication::desktop()->winId());
-
-    int screenWidth = QApplication::desktop()->width();
-    int screenHeight = QApplication::desktop()->height();
-
-    QLabel* image = new QLabel(this);
-    image->show();
     image->setPixmap(screenshot);
-    image->move(0, 0);
-    image->resize(screenWidth, screenHeight);
 
-    topLeftOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), settings.frameColor, this);
-    topRightOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), settings.frameColor, this);
-    bottomLeftOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), settings.frameColor, this);
-    bottomRightOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), settings.frameColor, this);
     moveOverlays();
 
     installEventFilter(this);
     setWindowFlags(Qt::WindowStaysOnTopHint);
+    setAttribute(Qt::WA_TranslucentBackground);
     showFullScreen();
     setCursor(QCursor(QPixmap(":/rc/cursor.ico")));
 }
@@ -99,7 +103,7 @@ void PartScreenshoter::moveOverlays(bool isSelecting) {
     int screenWidth = QApplication::desktop()->width();
     int screenHeight = QApplication::desktop()->height();
 
-    //тут происходит жуткая магия
+    //crazy magic
     if (!isSelecting) {
         topLeftOverlay->move(-1, -1);
         topLeftOverlay->resize(cursor().pos().x() + 1, cursor().pos().y() + 1);
@@ -130,10 +134,12 @@ void PartScreenshoter::moveOverlays(bool isSelecting) {
 bool PartScreenshoter::eventFilter(QObject* obj, QEvent* event) {
     if (event->type() == QEvent::KeyPress) {
         switch (((QKeyEvent*) event)->key()) {
-            case Qt::Key_Escape:
-                selecting = false;
+            case Qt::Key_Escape: {
                 hide();
-                return QMainWindow::eventFilter(obj, event);
+                return false;
+                break;
+            }
+            default:
                 break;
         }
     } //i dont know how and why, but it is dont working
@@ -178,6 +184,11 @@ bool PartScreenshoter::eventFilter(QObject* obj, QEvent* event) {
     if (event->type() == QEvent::MouseButtonRelease) {
         if (rect.width() < 5 || rect.height() < 5) return QMainWindow::eventFilter(obj, event);
         if (!selecting) return QMainWindow::eventFilter(obj, event);
+
+        if (settings.activeGrabbing) {
+            QScreen* screen = QApplication::primaryScreen();
+            screenshot = screen->grabWindow(QApplication::desktop()->winId());
+        }
 
         QImage temp = QImage(rect.width(), rect.height(), QImage::Format_RGB32);
         for (int i = rect.x(); i < rect.x() + rect.width(); i++) {

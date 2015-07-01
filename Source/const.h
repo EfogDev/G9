@@ -1,7 +1,7 @@
 #ifndef CONST
 #define CONST
 
-#define VERSION QString::number(0.02)
+#define VERSION QString::number(0.03)
 #include <QString>
 #include <QRgb>
 #include <QDir>
@@ -14,12 +14,13 @@ struct Settings {
         unsigned int saveQuality = 99;
         bool autoCopy            = false;
         bool autoSend            = false;
-        double opacity           = 0.82;
+        double opacity           = 0.75;
         QRgb frameColor          = qRgb(119, 119, 119);
         bool sound               = true;
+        bool activeGrabbing      = false;
 
-        QString hotkeyForFull    = "Meta+`";
-        QString hotkeyForPart    = "Ctrl+`";
+        QString hotkeyForFull    = "Shift+Ctrl+`";
+        QString hotkeyForPart    = "Alt+Ctrl+`";
 };
 
 #endif // CONST

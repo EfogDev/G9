@@ -102,12 +102,12 @@ void Init::loadSettings() {
 }
 
 QDataStream& operator<<(QDataStream& out, const Settings& settings) {
-    out << settings.autoCopy << settings.autoSave << settings.autoSend << settings.frameColor << settings.opacity << settings.saveDir << settings.saveFormat << settings.saveQuality << settings.sound;
+    out << settings.activeGrabbing << settings.autoCopy << settings.autoSave << settings.autoSend << settings.frameColor << settings.opacity << settings.saveDir << settings.saveFormat << settings.saveQuality << settings.sound;
     return out;
 }
 
 QDataStream& operator>>(QDataStream& in, Settings& settings) {
-    in >> settings.autoCopy >> settings.autoSave >> settings.autoSend >> settings.frameColor >> settings.opacity >> settings.saveDir >> settings.saveFormat >> settings.saveQuality >> settings.sound;
+    in >> settings.activeGrabbing >> settings.autoCopy >> settings.autoSave >> settings.autoSend >> settings.frameColor >> settings.opacity >> settings.saveDir >> settings.saveFormat >> settings.saveQuality >> settings.sound;
     return in;
 }
 
@@ -123,6 +123,6 @@ void Init::hotkey2clicked() {
     popup->close();
     loadSettings();
 
-    fullScr->setSettings(settings);
+    partScr->setSettings(settings);
     partScr->makeScreenshot();
 }

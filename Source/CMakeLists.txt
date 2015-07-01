@@ -9,7 +9,7 @@ find_package(Qt5Multimedia REQUIRED)
 find_package(Qt5X11Extras REQUIRED)
 ADD_DEFINITIONS(${QT_DEFINITIONS})
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Werror -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -g")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
@@ -70,6 +70,10 @@ execute_process(
 	COMMAND ${CMAKE_COMMAND} -E copy_directory res bin/res
 )
 
-include_directories(
-    /usr/include/qt5/QtGui/5.2.1/QtGui
-)
+IF (WIN32)
+
+ELSE()
+    include_directories(
+        /usr/include/qt5/QtGui/5.2.1/QtGui
+    )
+ENDIF()
