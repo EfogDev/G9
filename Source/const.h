@@ -20,7 +20,7 @@ struct Settings {
         bool activeGrabbing      = false;
 
         QString hotkeyForFull    = "Shift+Ctrl+`";
-        QString hotkeyForPart    = "Alt+Ctrl+`";
+        QString hotkeyForPart    = "Ctrl+`";
 };
 
 #endif // CONST

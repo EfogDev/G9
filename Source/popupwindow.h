@@ -2,12 +2,14 @@
 #define POPUPWINDOW_H
 
 #include <QWidget>
+#include <QGraphicsBlurEffect>
+#include <QGraphicsDropShadowEffect>
 
 class PopupWindow: public QWidget {
     Q_OBJECT
 
     public:
-        explicit PopupWindow(QString title, QString text, QWidget *parent = 0);
+        explicit PopupWindow(QString title, QString text, QWidget* parent = 0);
 
     signals:
 
@@ -17,9 +19,11 @@ class PopupWindow: public QWidget {
         void check();
 
     private:
-        QTimer *startTimer = 0;
-        QTimer *tempTimer = 0;
-        QTimer *checkTimer = 0;
+        QTimer* startTimer = 0;
+        QTimer* tempTimer = 0;
+        QTimer* checkTimer = 0;
+
+        QGraphicsBlurEffect* blurEffect;
 };
 
 #endif // POPUPWINDOW_H

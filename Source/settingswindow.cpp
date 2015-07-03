@@ -1,4 +1,5 @@
 #include "settingswindow.h"
+#include "popupwindow.h"
 
 SettingsWindow::SettingsWindow(Settings settings, QWidget *parent): QWidget(parent) {
     this->settings = settings;
@@ -314,7 +315,7 @@ void SettingsWindow::saveClicked() {
     settings.frameColor = frameColorImage->pixmap()->toImage().pixel(1, 1);
 
     emit saved(settings);
-    qApp->exit();
+    (new PopupWindow("Настройки изменены", "Перезапустите G9 для применения.", this))->show();
     close();
 }
 

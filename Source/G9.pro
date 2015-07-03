@@ -35,7 +35,7 @@ DISTFILES += \
     popup.qss
 
 unix:!macx {
-    INCLUDEPATH += /usr/include/qt5/QtGui/5.2.1/QtGui
+    INCLUDEPATH += /usr/include/qt/QtGui/5.4.2/QtGui
     LIBS += -lX11
     SOURCES += qxt/qxtglobalshortcut.cpp
     SOURCES += qxt/qxtglobalshortcut_x11.cpp

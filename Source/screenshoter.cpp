@@ -75,6 +75,19 @@ PartScreenshoter::PartScreenshoter(Settings settings): FullScreenshoter(settings
     topRightOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), settings.frameColor, this);
     bottomLeftOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), settings.frameColor, this);
     bottomRightOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), settings.frameColor, this);
+
+    QString red = QString::number(qRed(settings.frameColor));
+    QString green = QString::number(qGreen(settings.frameColor));
+    QString blue = QString::number(qBlue(settings.frameColor));
+    QString color = "rgb(" + red + ", " + green + ", " + blue + ")";
+
+    horizontalLine = new QLabel(this);
+    horizontalLine->setGeometry(0, 0, screenWidth, 1);
+    horizontalLine->setStyleSheet("background: " + color + ";");
+
+    verticalLine = new QLabel(this);
+    verticalLine->setGeometry(0, 0, 1, screenHeight);
+    verticalLine->setStyleSheet("background: " + color + ";");
 }
 
 void PartScreenshoter::makeScreenshot() {
@@ -97,6 +110,13 @@ void PartScreenshoter::makeScreenshot() {
     setAttribute(Qt::WA_TranslucentBackground);
     showFullScreen();
     setCursor(QCursor(QPixmap(":/rc/cursor.ico")));
+
+    verticalLine->setVisible(true);
+    horizontalLine->setVisible(true);
+
+    topRightOverlay->setVisible(false);
+    bottomLeftOverlay->setVisible(false);
+    bottomRightOverlay->setVisible(false);
 }
 
 void PartScreenshoter::moveOverlays(bool isSelecting) {
@@ -106,6 +126,12 @@ void PartScreenshoter::moveOverlays(bool isSelecting) {
     //crazy magic
     if (!isSelecting) {
         topLeftOverlay->move(-1, -1);
+        topLeftOverlay->resize(screenWidth + 2, screenHeight + 2);
+
+        horizontalLine->move(0, cursor().pos().y());
+        verticalLine->move(cursor().pos().x(), 0);
+
+        /*topLeftOverlay->move(-1, -1);
         topLeftOverlay->resize(cursor().pos().x() + 1, cursor().pos().y() + 1);
 
         topRightOverlay->move(cursor().pos().x() - 1, -1);
@@ -115,7 +141,7 @@ void PartScreenshoter::moveOverlays(bool isSelecting) {
         bottomLeftOverlay->resize(cursor().pos().x() + 1, screenHeight - cursor().pos().y() + 3);
 
         bottomRightOverlay->move(cursor().pos().x() - 1, cursor().pos().y() - 1);
-        bottomRightOverlay->resize(screenWidth - cursor().pos().x() + 3, screenHeight - cursor().pos().y() + 3);
+        bottomRightOverlay->resize(screenWidth - cursor().pos().x() + 3, screenHeight - cursor().pos().y() + 3);*/
     } else {
         topLeftOverlay->move(-1, -1);
         topLeftOverlay->resize(rect.x() + rect.width() + 1, rect.y() + 2);
@@ -142,7 +168,7 @@ bool PartScreenshoter::eventFilter(QObject* obj, QEvent* event) {
             default:
                 break;
         }
-    } //i dont know how and why, but it is dont working
+    }
 
     if (event->type() == QEvent::MouseButtonPress) {
         start = QPoint(((QMouseEvent*) event)->x(), ((QMouseEvent*) event)->y());
@@ -155,6 +181,13 @@ bool PartScreenshoter::eventFilter(QObject* obj, QEvent* event) {
         }
 
         selecting = true;
+
+        horizontalLine->setVisible(false);
+        verticalLine->setVisible(false);
+
+        topRightOverlay->setVisible(true);
+        bottomLeftOverlay->setVisible(true);
+        bottomRightOverlay->setVisible(true);
     }
 
 

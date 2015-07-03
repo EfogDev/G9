@@ -39,6 +39,13 @@ PopupWindow::PopupWindow(QString title, QString text, QWidget* parent) : QWidget
     checkTimer = new QTimer();
     checkTimer->start(70);
     connect(checkTimer, SIGNAL(timeout()), this, SLOT(check()));
+
+    blurEffect = new QGraphicsBlurEffect(this);
+    blurEffect->setBlurRadius(7);
+    blurEffect->setEnabled(false);
+    blurEffect->setBlurHints(QGraphicsBlurEffect::AnimationHint | QGraphicsBlurEffect::QualityHint);
+
+    setGraphicsEffect(blurEffect);
 }
 
 void PopupWindow::lowerOpacity() {
@@ -67,9 +74,11 @@ void PopupWindow::check() {
             tempTimer->stop();
 
         setWindowOpacity(0.3);
+        blurEffect->setEnabled(true);
     } else {
         if (!startTimer->isActive()) {
             setWindowOpacity(1);
+            blurEffect->setEnabled(false);
 
             startTimer = new QTimer();
             startTimer->start(3000);
