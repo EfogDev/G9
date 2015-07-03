@@ -42,10 +42,8 @@ class PartScreenshoter: public FullScreenshoter {
         QRect rect;
         QLabel* image;
 
-        /* TEST SELECTING MODE */
         QLabel* horizontalLine;
         QLabel* verticalLine;
-        /* TEST SELECTING MODE */
 
         bool eventFilter(QObject* obj, QEvent* event);
         void moveOverlays(bool isSelecting = false);

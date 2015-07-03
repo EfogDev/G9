@@ -43,7 +43,7 @@ void FullScreenshoter::playSound() {
         QFile::copy(":/rc/sound.wav", QDir::tempPath() + "/sound.wav");
 
         #ifdef Q_OS_LINUX
-            QProcess *p = new QProcess();
+            QProcess *p = new QProcess(this);
             p->startDetached("play " + QDir::tempPath() + "/sound.wav");
         #else
             QSound::play(QDir::tempPath() + "/sound.wav");
@@ -60,6 +60,8 @@ void FullScreenshoter::setSettings(Settings settings) {
 /**************************************/
 
 PartScreenshoter::PartScreenshoter(Settings settings): FullScreenshoter(settings) {
+    setMouseTracking(true);
+
     int screenWidth = QApplication::desktop()->width();
     int screenHeight = QApplication::desktop()->height();
 
@@ -123,7 +125,6 @@ void PartScreenshoter::moveOverlays(bool isSelecting) {
     int screenWidth = QApplication::desktop()->width();
     int screenHeight = QApplication::desktop()->height();
 
-    //crazy magic
     if (!isSelecting) {
         topLeftOverlay->move(-1, -1);
         topLeftOverlay->resize(screenWidth + 2, screenHeight + 2);
@@ -181,15 +182,15 @@ bool PartScreenshoter::eventFilter(QObject* obj, QEvent* event) {
         }
 
         selecting = true;
-
-        horizontalLine->setVisible(false);
-        verticalLine->setVisible(false);
+        moveOverlays(true);
 
         topRightOverlay->setVisible(true);
         bottomLeftOverlay->setVisible(true);
         bottomRightOverlay->setVisible(true);
-    }
 
+        horizontalLine->move(-1, -1);
+        verticalLine->move(-1, -1);
+    }
 
     if (event->type() == QEvent::HoverMove) {
         int tempX = ((QHoverEvent*) event)->pos().x();
