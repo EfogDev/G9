@@ -9,6 +9,9 @@ SettingsWindow::SettingsWindow(Settings settings, QWidget *parent): QWidget(pare
     setFixedSize(350, 525);
     setWindowTitle("Настройки");
 
+    QFontDatabase::addApplicationFont(":/rc/Tahoma.ttf");
+    setStyleSheet("QLabel { font-family: Tahoma; }");
+
     QString groupBoxStyle = "QGroupBox {\
                                  border: 1px solid #777;\
                                  margin: 10px;\
@@ -315,12 +318,11 @@ void SettingsWindow::saveClicked() {
     settings.frameColor = frameColorImage->pixmap()->toImage().pixel(1, 1);
 
     emit saved(settings);
-    (new PopupWindow("Настройки изменены", "Перезапустите G9 для применения.", this))->show();
+    (new PopupWindow("Настройки изменены", "Конфигурация была сохранена.", this))->show();
     close();
 }
 
 void SettingsWindow::cancelClicked() {
-    qApp->exit();
     close();
 }
 

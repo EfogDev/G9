@@ -12,7 +12,7 @@ class Init: public QWidget {
     Q_OBJECT
 
     public:
-        explicit Init(QWidget *parent = 0);
+        Init(bool startMessage, QWidget *parent = 0);
 
     private:
         Settings settings;
@@ -26,6 +26,7 @@ class Init: public QWidget {
         bool checkOpened();
         void startListen();
         void loadSettings();
+        void createTrayIcon();
 
     private slots:
         void settingsSaved(Settings settings);

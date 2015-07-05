@@ -12,6 +12,7 @@ class PopupWindow: public QWidget {
         explicit PopupWindow(QString title, QString text, QWidget* parent = 0);
 
     signals:
+        void finished();
 
     public slots:
         void lowerOpacity();

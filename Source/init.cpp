@@ -7,7 +7,7 @@
 #include <const.h>
 #include <qxt/qxtglobalshortcut.h>
 
-Init::Init(QWidget *parent): QWidget(parent) {
+Init::Init(bool startMessage, QWidget *parent): QWidget(parent) {
     bool firstLaunch = false;
     QDir dir;
     if (!dir.exists(QDir::homePath() + "/.g9")) {
@@ -30,21 +30,49 @@ Init::Init(QWidget *parent): QWidget(parent) {
         shortcutFull->setShortcut(QKeySequence(settings.hotkeyForFull));
         connect(shortcutFull, SIGNAL(activated()), this, SLOT(hotkey1clicked()));
 
-        partScr = new PartScreenshoter(settings);
-        fullScr = new FullScreenshoter(settings);
+        if (startMessage) {
+            popup = new PopupWindow("Информация", "G9 успешно запущен. С возвращением!");
+            popup->show();
+        }
 
-        popup = new PopupWindow("Информация", "G9 успешно запущен. С возвращением!");
-        popup->show();
-
+        createTrayIcon();
         startListen();
     } else {
+        popup = new PopupWindow("Информация", "G9 уже запущен, вторая копия будет закрыта.");
+        popup->show();
+
+        connect(popup, &PopupWindow::finished, [=] () {
+            close();
+        });
+    }
+}
+
+void Init::createTrayIcon() {
+    QAction* settingsAction = new QAction(this);
+    settingsAction->setText("Настройки");
+    connect(settingsAction, &QAction::triggered, [=] (bool /*checked*/) {
         SettingsWindow* settingsWindow = new SettingsWindow(settings);
         connect(settingsWindow, SIGNAL(saved(Settings)), this, SLOT(settingsSaved(Settings)));
         settingsWindow->show();
+    });
 
-        popup = new PopupWindow("Информация", "G9 уже запущен, открываю настройки.");
-        popup->show();
-    }
+    QAction* exitAction = new QAction(this);
+    exitAction->setText("Выход");
+    connect(exitAction, &QAction::triggered, [=] (bool /*checked*/) {
+        popup->close();
+        close();
+        qApp->exit();
+    });
+
+    QMenu* trayMenu = new QMenu(this);
+    trayMenu->addActions(QList<QAction*>() << settingsAction);
+    trayMenu->addSeparator();
+    trayMenu->addActions(QList<QAction*>() << exitAction);
+
+    QSystemTrayIcon* icon = new QSystemTrayIcon(this);
+    icon->setIcon(QIcon(":/rc/icon.ico"));
+    icon->setContextMenu(trayMenu);
+    icon->setVisible(true);
 }
 
 bool Init::checkOpened() {
@@ -113,16 +141,16 @@ QDataStream& operator>>(QDataStream& in, Settings& settings) {
 
 void Init::hotkey1clicked() {
     popup->close();
-    loadSettings();
 
+    fullScr = new FullScreenshoter(settings);
     fullScr->setSettings(settings);
     fullScr->makeScreenshot();
 }
 
 void Init::hotkey2clicked() {
     popup->close();
-    loadSettings();
 
+    partScr = new PartScreenshoter(settings);
     partScr->setSettings(settings);
     partScr->makeScreenshot();
 }

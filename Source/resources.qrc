@@ -4,5 +4,7 @@
         <file>sound.wav</file>
         <file>popup.qss</file>
         <file>logo.png</file>
+        <file>Tahoma.ttf</file>
+        <file>icon.ico</file>
     </qresource>
 </RCC>

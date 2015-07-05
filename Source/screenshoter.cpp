@@ -44,7 +44,7 @@ void FullScreenshoter::playSound() {
 
         #ifdef Q_OS_LINUX
             QProcess *p = new QProcess(this);
-            p->startDetached("play " + QDir::tempPath() + "/sound.wav");
+            p->startDetached("play", QStringList() << QDir::tempPath() + "/sound.wav");
         #else
             QSound::play(QDir::tempPath() + "/sound.wav");
         #endif
@@ -129,20 +129,8 @@ void PartScreenshoter::moveOverlays(bool isSelecting) {
         topLeftOverlay->move(-1, -1);
         topLeftOverlay->resize(screenWidth + 2, screenHeight + 2);
 
-        horizontalLine->move(0, cursor().pos().y());
-        verticalLine->move(cursor().pos().x(), 0);
-
-        /*topLeftOverlay->move(-1, -1);
-        topLeftOverlay->resize(cursor().pos().x() + 1, cursor().pos().y() + 1);
-
-        topRightOverlay->move(cursor().pos().x() - 1, -1);
-        topRightOverlay->resize(screenWidth - cursor().pos().x() + 3, cursor().pos().y() + 1);
-
-        bottomLeftOverlay->move(-1, cursor().pos().y() - 1);
-        bottomLeftOverlay->resize(cursor().pos().x() + 1, screenHeight - cursor().pos().y() + 3);
-
-        bottomRightOverlay->move(cursor().pos().x() - 1, cursor().pos().y() - 1);
-        bottomRightOverlay->resize(screenWidth - cursor().pos().x() + 3, screenHeight - cursor().pos().y() + 3);*/
+        horizontalLine->move(0, cursor().pos().y() - 1);
+        verticalLine->move(cursor().pos().x() - 1, 0);
     } else {
         topLeftOverlay->move(-1, -1);
         topLeftOverlay->resize(rect.x() + rect.width() + 1, rect.y() + 2);
