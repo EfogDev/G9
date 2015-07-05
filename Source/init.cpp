@@ -96,6 +96,9 @@ void Init::startListen() {
 void Init::settingsSaved(Settings settings) {
     this->settings = settings;
 
+    shortcutPart->setShortcut(QKeySequence(settings.hotkeyForPart));
+    shortcutFull->setShortcut(QKeySequence(settings.hotkeyForFull));
+
     QFile file(QDir::homePath() + "/.g9/config.bin");
     file.open(QIODevice::WriteOnly);
     QDataStream fs(&file);
@@ -132,12 +135,12 @@ void Init::loadSettings() {
 }
 
 QDataStream& operator<<(QDataStream& out, const Settings& settings) {
-    out << settings.activeGrabbing << settings.autoCopy << settings.autoSave << settings.autoSend << settings.frameColor << settings.opacity << settings.saveDir << settings.saveFormat << settings.saveQuality << settings.sound;
+    out << settings.activeGrabbing << settings.autoCopy << settings.autoSave << settings.autoSend << settings.frameColor << settings.opacity << settings.saveDir << settings.saveFormat << settings.saveQuality << settings.sound << settings.hotkeyForFull << settings.hotkeyForPart;
     return out;
 }
 
 QDataStream& operator>>(QDataStream& in, Settings& settings) {
-    in >> settings.activeGrabbing >> settings.autoCopy >> settings.autoSave >> settings.autoSend >> settings.frameColor >> settings.opacity >> settings.saveDir >> settings.saveFormat >> settings.saveQuality >> settings.sound;
+    in >> settings.activeGrabbing >> settings.autoCopy >> settings.autoSave >> settings.autoSend >> settings.frameColor >> settings.opacity >> settings.saveDir >> settings.saveFormat >> settings.saveQuality >> settings.sound >> settings.hotkeyForFull >> settings.hotkeyForPart;
     return in;
 }
 

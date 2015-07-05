@@ -6,7 +6,7 @@ SettingsWindow::SettingsWindow(Settings settings, QWidget *parent): QWidget(pare
 
     connect(this, SIGNAL(destroyed()), qApp, SLOT(quit()));
 
-    setFixedSize(350, 525);
+    setFixedSize(685, 375);
     setWindowTitle("Настройки");
 
     QFontDatabase::addApplicationFont(":/rc/Tahoma.ttf");
@@ -30,7 +30,7 @@ SettingsWindow::SettingsWindow(Settings settings, QWidget *parent): QWidget(pare
     /* Main */
 
     mainGroup = new QGroupBox("Основные", this);
-    mainGroup->setGeometry(20, 20, width() - 40, 290);
+    mainGroup->setGeometry(20, 20, 310, 290);
     mainGroup->setStyleSheet(groupBoxStyle);
 
     autoSaveLabel = new Label("Сохранять скриншот", mainGroup);
@@ -115,7 +115,7 @@ SettingsWindow::SettingsWindow(Settings settings, QWidget *parent): QWidget(pare
     /* Additional */
 
     additionalGroup = new QGroupBox("Дополнительные", this);
-    additionalGroup->setGeometry(20, 330, width() - 40, 155);
+    additionalGroup->setGeometry(350, 20, 310, 155);
     additionalGroup->setStyleSheet(groupBoxStyle);
 
     opacityLabel = new Label("Затемнение (0-99%):", additionalGroup);
@@ -152,6 +152,26 @@ SettingsWindow::SettingsWindow(Settings settings, QWidget *parent): QWidget(pare
     activeGrabbingCheckBox = new QCheckBox("", additionalGroup);
     activeGrabbingCheckBox->adjustSize();
     activeGrabbingCheckBox->move(40, 108);
+
+    /* Shortcuts */
+
+    shortcutsGroup = new QGroupBox("Комбинации клавиш", this);
+    shortcutsGroup->setGeometry(350, 190, 310, 120);
+    shortcutsGroup->setStyleSheet(groupBoxStyle);
+
+    fullLabel = new Label("Весь экран: ", shortcutsGroup);
+    fullLabel->adjustSize();
+    fullLabel->move(40, 38);
+
+    fullGrabber = new QCustomKeySequenceEdit(shortcutsGroup);
+    fullGrabber->setGeometry(145, 33, 118, 25);
+
+    partLabel = new Label("Участок экрана: ", shortcutsGroup);
+    partLabel->adjustSize();
+    partLabel->move(40, 73);
+
+    partGrabber = new QCustomKeySequenceEdit(shortcutsGroup);
+    partGrabber->setGeometry(145, 68, 118, 25);
 
     /* Buttons */
 
@@ -211,6 +231,9 @@ void SettingsWindow::load() {
     pixmap.fill(settings.frameColor);
 
     frameColorImage->setPixmap(pixmap);
+
+    fullGrabber->setKeySequence(QKeySequence(settings.hotkeyForFull));
+    partGrabber->setKeySequence(QKeySequence(settings.hotkeyForPart));
 }
 
 void SettingsWindow::autoSaveLabelClicked() {
@@ -316,6 +339,9 @@ void SettingsWindow::saveClicked() {
 
     settings.opacity = opacityEdit->text().toDouble() / 100;
     settings.frameColor = frameColorImage->pixmap()->toImage().pixel(1, 1);
+
+    settings.hotkeyForFull = fullGrabber->keySequence().toString();
+    settings.hotkeyForPart = partGrabber->keySequence().toString();
 
     emit saved(settings);
     (new PopupWindow("Настройки изменены", "Конфигурация была сохранена.", this))->show();

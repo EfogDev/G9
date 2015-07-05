@@ -4,6 +4,7 @@
 #include <QtCore>
 #include <QtWidgets>
 #include <const.h>
+#include <qcustomkeysequenceedit.h>
 
 class Label: public QLabel {
        Q_OBJECT
@@ -58,6 +59,14 @@ class SettingsWindow: public QWidget {
         QPushButton* frameColorButton;
         Label* activeGrabbingLabel;
         QCheckBox* activeGrabbingCheckBox;
+
+        /* Shortcuts */
+        QGroupBox* shortcutsGroup;
+
+        Label* partLabel;
+        QCustomKeySequenceEdit* partGrabber;
+        Label* fullLabel;
+        QCustomKeySequenceEdit* fullGrabber;
 
         /* Buttons */
         QPushButton* cancelButton;

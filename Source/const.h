@@ -1,7 +1,7 @@
 #ifndef CONST
 #define CONST
 
-#define VERSION QString::number(0.03)
+#define VERSION QString::number(0.12)
 #include <QString>
 #include <QRgb>
 #include <QDir>

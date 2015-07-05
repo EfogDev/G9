@@ -16,7 +16,8 @@ SOURCES += main.cpp\
         qtransparentlabel.cpp \
         popupwindow.cpp \
         settingswindow.cpp \
-        init.cpp
+        init.cpp \
+        qcustomkeysequenceedit.cpp
 
 HEADERS  += \
             screenshoter.h \
@@ -24,7 +25,8 @@ HEADERS  += \
             popupwindow.h \
             settingswindow.h \
             const.h \
-            init.h
+            init.h \
+            qcustomkeysequenceedit.h
 
 CONFIG += C++11
 
