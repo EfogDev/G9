@@ -70,29 +70,19 @@ PartScreenshoter::PartScreenshoter(Settings settings): FullScreenshoter(settings
     image->move(0, 0);
     image->resize(screenWidth, screenHeight);
 
-    if (settings.activeGrabbing)
-        image->setVisible(false);
-
     topLeftOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), settings.frameColor, this);
     topRightOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), settings.frameColor, this);
     bottomLeftOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), settings.frameColor, this);
     bottomRightOverlay = new QTransparentLabel(settings.opacity, qRgb(20, 20, 20), settings.frameColor, this);
 
-    QString red = QString::number(qRed(settings.frameColor));
-    QString green = QString::number(qGreen(settings.frameColor));
-    QString blue = QString::number(qBlue(settings.frameColor));
-    QString color = "rgb(" + red + ", " + green + ", " + blue + ")";
-
     horizontalLine = new QLabel(this);
-    horizontalLine->setGeometry(0, 0, screenWidth, 1);
-    horizontalLine->setStyleSheet("background: " + color + ";");
-
     verticalLine = new QLabel(this);
-    verticalLine->setGeometry(0, 0, 1, screenHeight);
-    verticalLine->setStyleSheet("background: " + color + ";");
 }
 
 void PartScreenshoter::makeScreenshot() {
+    int screenWidth = QApplication::desktop()->width();
+    int screenHeight = QApplication::desktop()->height();
+
     rect.setX(cursor().pos().x());
     rect.setY(cursor().pos().y());
     rect.setWidth(3);
@@ -104,6 +94,24 @@ void PartScreenshoter::makeScreenshot() {
     QScreen* screen = QApplication::primaryScreen();
     screenshot = screen->grabWindow(QApplication::desktop()->winId());
     image->setPixmap(screenshot);
+
+    image->setVisible(!settings.activeGrabbing);
+
+    topLeftOverlay->updateParameters(settings.opacity, qRgb(20, 20, 20), settings.frameColor);
+    topRightOverlay->updateParameters(settings.opacity, qRgb(20, 20, 20), settings.frameColor);
+    bottomLeftOverlay->updateParameters(settings.opacity, qRgb(20, 20, 20), settings.frameColor);
+    bottomRightOverlay->updateParameters(settings.opacity, qRgb(20, 20, 20), settings.frameColor);
+
+    QString red = QString::number(qRed(settings.frameColor));
+    QString green = QString::number(qGreen(settings.frameColor));
+    QString blue = QString::number(qBlue(settings.frameColor));
+    QString color = "rgb(" + red + ", " + green + ", " + blue + ")";
+
+    horizontalLine->setGeometry(0, 0, screenWidth, 1);
+    horizontalLine->setStyleSheet("background: " + color + ";");
+
+    verticalLine->setGeometry(0, 0, 1, screenHeight);
+    verticalLine->setStyleSheet("background: " + color + ";");
 
     moveOverlays();
 

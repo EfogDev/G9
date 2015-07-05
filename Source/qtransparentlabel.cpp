@@ -7,6 +7,12 @@ QTransparentLabel::QTransparentLabel(double opacity, QRgb color, QRgb frameColor
     this->frameColor = frameColor;
 }
 
+void QTransparentLabel::updateParameters(double opacity, QRgb color, QRgb frameColor) {
+    this->opacity = opacity;
+    this->color = color;
+    this->frameColor = frameColor;
+}
+
 void QTransparentLabel::paintEvent(QPaintEvent *e) {
     QPainter paint;
     paint.begin(this);

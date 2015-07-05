@@ -30,10 +30,9 @@ Init::Init(bool startMessage, QWidget *parent): QWidget(parent) {
         shortcutFull->setShortcut(QKeySequence(settings.hotkeyForFull));
         connect(shortcutFull, SIGNAL(activated()), this, SLOT(hotkey1clicked()));
 
-        if (startMessage) {
-            popup = new PopupWindow("Информация", "G9 успешно запущен. С возвращением!");
+        popup = new PopupWindow("Информация", "G9 успешно запущен. С возвращением!");
+        if (startMessage)
             popup->show();
-        }
 
         fullScr = new FullScreenshoter(settings);
         partScr = new PartScreenshoter(settings);
