@@ -150,6 +150,7 @@ bool PartScreenshoter::eventFilter(QObject* obj, QEvent* event) {
     if (event->type() == QEvent::KeyPress) {
         switch (((QKeyEvent*) event)->key()) {
             case Qt::Key_Escape: {
+                selecting = false;
                 hide();
                 return false;
                 break;

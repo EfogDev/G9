@@ -35,6 +35,9 @@ Init::Init(bool startMessage, QWidget *parent): QWidget(parent) {
             popup->show();
         }
 
+        fullScr = new FullScreenshoter(settings);
+        partScr = new PartScreenshoter(settings);
+
         createTrayIcon();
         startListen();
     } else {
@@ -142,7 +145,6 @@ QDataStream& operator>>(QDataStream& in, Settings& settings) {
 void Init::hotkey1clicked() {
     popup->close();
 
-    fullScr = new FullScreenshoter(settings);
     fullScr->setSettings(settings);
     fullScr->makeScreenshot();
 }
@@ -150,7 +152,6 @@ void Init::hotkey1clicked() {
 void Init::hotkey2clicked() {
     popup->close();
 
-    partScr = new PartScreenshoter(settings);
     partScr->setSettings(settings);
     partScr->makeScreenshot();
 }
