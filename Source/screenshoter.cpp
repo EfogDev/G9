@@ -94,7 +94,6 @@ void PartScreenshoter::makeScreenshot() {
     QScreen* screen = QApplication::primaryScreen();
     screenshot = screen->grabWindow(QApplication::desktop()->winId());
     image->setPixmap(screenshot);
-
     image->setVisible(!settings.activeGrabbing);
 
     topLeftOverlay->updateParameters(settings.opacity, qRgb(20, 20, 20), settings.frameColor);
