@@ -4,5 +4,8 @@ Source/.idea/*
 Source/.idea
 Source/*.user
 Source/*moc*
+Source/*.o
+Source/*.depends
+Source/Makefile
 Build/*
 build*
