@@ -7,5 +7,10 @@ Source/*moc*
 Source/*.o
 Source/*.depends
 Source/Makefile
+Source/CMakeCache.txt
+Source/CMakeFiles/
+Source/G9
+Source/cmake_install.cmake
+Source/qrc_resources.cpp
 Build/*
 build*
