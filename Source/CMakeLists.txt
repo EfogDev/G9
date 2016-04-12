@@ -74,6 +74,6 @@ IF (WIN32)
 
 ELSE()
     include_directories(
-        /usr/include/qt5/QtGui/5.2.1/QtGui
+        /usr/include/qt5/QtGui/5.5.1/QtGui
     )
 ENDIF()

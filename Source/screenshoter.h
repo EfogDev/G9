@@ -15,8 +15,10 @@ class FullScreenshoter: public QMainWindow {
     public:
         FullScreenshoter(Settings settings) { this->settings = settings; }
         virtual void makeScreenshot();
+        void takeScreenshot();
         void setSettings(Settings settings);
         void saveToFile(QString filename, QString format, int quality = 100);
+        void sendToImgur();
         QPixmap screenshot;
 
     protected:

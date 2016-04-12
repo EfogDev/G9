@@ -45,7 +45,7 @@ class SettingsWindow: public QWidget {
         Label* autoCopyLabel;
         QCheckBox* autoCopyCheckBox;
         Label* autoSendLabel;
-        QCheckBox* autoSendCheckbox;
+        QCheckBox* autoSendCheckBox;
         Label* soundLabel;
         QCheckBox* soundCheckBox;
 
@@ -83,6 +83,7 @@ class SettingsWindow: public QWidget {
     private slots:
         void autoSaveChanged();
         void autoSaveLabelClicked();
+        void autoSendLabelClicked();
         void autoCopyLabelClicked();
         void soundLabelClicked();
         void activeGrabbingLabelClicked();

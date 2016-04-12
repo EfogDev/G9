@@ -7,6 +7,7 @@
 #include "screenshoter.h"
 #include "const.h"
 #include <popupwindow.h>
+#include <QTcpServer>
 
 class Init: public QWidget {
     Q_OBJECT
@@ -19,6 +20,8 @@ class Init: public QWidget {
         QxtGlobalShortcut *shortcutPart;
         QxtGlobalShortcut *shortcutFull;
         PopupWindow* popup;
+
+        QTcpServer* server;
 
         PartScreenshoter* partScr;
         FullScreenshoter* fullScr;

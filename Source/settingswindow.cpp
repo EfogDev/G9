@@ -93,15 +93,14 @@ SettingsWindow::SettingsWindow(Settings settings, QWidget *parent): QWidget(pare
     autoCopyCheckBox->adjustSize();
     autoCopyCheckBox->move(40, 175);
 
-    autoSendLabel = new Label("Отправлять на сервер (недоступно)", mainGroup);
+    autoSendLabel = new Label("Отправлять на IMGUR (с Ctrl)", mainGroup);
     autoSendLabel->adjustSize();
     autoSendLabel->move(62, 204);
-    autoSendLabel->setEnabled(false);
+    connect(autoSendLabel, SIGNAL(clicked()), this, SLOT(autoSendLabelClicked()));
 
-    autoSendCheckbox = new QCheckBox("", mainGroup);
-    autoSendCheckbox->adjustSize();
-    autoSendCheckbox->move(40, 202);
-    autoSendCheckbox->setEnabled(false);
+    autoSendCheckBox = new QCheckBox("", mainGroup);
+    autoSendCheckBox->adjustSize();
+    autoSendCheckBox->move(40, 202);
 
     soundLabel = new Label("Воспроизводить звук", mainGroup);
     soundLabel->adjustSize();
@@ -206,6 +205,9 @@ void SettingsWindow::load() {
     if (settings.sound)
         soundCheckBox->setChecked(true);
 
+    if (settings.autoSend)
+        autoSendCheckBox->setChecked(true);
+
     saveDirEdit->setText(settings.saveDir);
 
     if (settings.saveFormat == "png")
@@ -258,6 +260,10 @@ void SettingsWindow::autoSaveChanged() {
         saveQualityEdit->setEnabled(false);
         saveQualityLabel->setEnabled(false);
     }
+}
+
+void SettingsWindow::autoSendLabelClicked() {
+    autoSendCheckBox->toggle();
 }
 
 void SettingsWindow::autoCopyLabelClicked() {
@@ -328,6 +334,10 @@ void SettingsWindow::saveClicked() {
     if (autoCopyCheckBox->isChecked())
         settings.autoCopy = true;
     else settings.autoCopy = false;
+
+    if (autoSendCheckBox->isChecked())
+        settings.autoSend = true;
+    else settings.autoSend = false;
 
     if (soundCheckBox->isChecked())
         settings.sound = true;

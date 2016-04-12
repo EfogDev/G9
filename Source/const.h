@@ -19,8 +19,8 @@ struct Settings {
         bool sound               = true;
         bool activeGrabbing      = false;
 
-        QString hotkeyForFull    = "Shift+Ctrl+`";
-        QString hotkeyForPart    = "Ctrl+`";
+        QString hotkeyForFull    = "";
+        QString hotkeyForPart    = "";
 };
 
 #endif // CONST

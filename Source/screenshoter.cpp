@@ -2,14 +2,24 @@
 #include "qtransparentlabel.h"
 #include "math.h"
 #include "QSound"
+#include "QtNetwork"
 
 /**************************************/
 /*           FullScreenshoter         */
 /**************************************/
 
+void FullScreenshoter::takeScreenshot() {
+    QDesktopWidget* desktop = QApplication::desktop();
+    QScreen* screen = QApplication::screens()[desktop->screenNumber(QCursor::pos())];
+    screenshot = screen->grabWindow(desktop->winId(), screen->geometry().x(), screen->geometry().y(), screen->geometry().width(), screen->geometry().height());
+}
+
 void FullScreenshoter::makeScreenshot() {
-    QScreen* screen = QApplication::primaryScreen();
-    screenshot = screen->grabWindow(QApplication::desktop()->winId());
+    takeScreenshot();
+
+    if (settings.autoSend) {
+        sendToImgur();
+    }
 
     if (settings.autoSave) {
         saveToFile(settings.saveDir, settings.saveFormat, settings.saveQuality);
@@ -38,6 +48,36 @@ void FullScreenshoter::saveToFile(QString filename, QString format, int quality)
     popup->show();
 }
 
+void FullScreenshoter::sendToImgur() {
+    QByteArray base64image;
+    QBuffer buffer(&base64image);
+    buffer.open(QIODevice::WriteOnly);
+    screenshot.save(&buffer, "PNG", 100);
+    base64image = base64image.toBase64().toPercentEncoding();
+
+    QByteArray data;
+    QUrlQuery params;
+    params.addQueryItem("type", "base64");
+    params.addQueryItem("image", base64image);
+    data.append(params.toString(QUrl::FullyDecoded).toUtf8());
+
+    QNetworkAccessManager* manager = new QNetworkAccessManager();
+    QNetworkRequest request(QUrl("https://api.imgur.com/3/image"));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "multipart/form-data");
+    request.setRawHeader("Authorization", "Client-ID 9a2331b493dfbb6");
+    manager->post(request, data);
+
+    popup = new PopupWindow("Информация", "Отправляю на IMGUR...");
+    popup->show();
+
+    connect(manager, &QNetworkAccessManager::finished, [=] (QNetworkReply* reply) {
+        QApplication::clipboard()->setText(reply->readAll());
+
+        popup = new PopupWindow("Информация", "Скриншот загружен, ссылка скопирована.");
+        popup->show();
+    });
+}
+
 void FullScreenshoter::playSound() {
     if (settings.sound) {
         QFile::copy(":/rc/sound.wav", QDir::tempPath() + "/sound.wav");
@@ -62,8 +102,8 @@ void FullScreenshoter::setSettings(Settings settings) {
 PartScreenshoter::PartScreenshoter(Settings settings): FullScreenshoter(settings) {
     setMouseTracking(true);
 
-    int screenWidth = QApplication::desktop()->width();
-    int screenHeight = QApplication::desktop()->height();
+    int screenWidth = QApplication::screens()[qApp->desktop()->screenNumber(QCursor::pos())]->geometry().width();
+    int screenHeight = QApplication::screens()[qApp->desktop()->screenNumber(QCursor::pos())]->geometry().height();
 
     image = new QLabel(this);
     image->show();
@@ -80,19 +120,22 @@ PartScreenshoter::PartScreenshoter(Settings settings): FullScreenshoter(settings
 }
 
 void PartScreenshoter::makeScreenshot() {
-    int screenWidth = QApplication::desktop()->width();
-    int screenHeight = QApplication::desktop()->height();
+    int screenWidth = QApplication::screens()[qApp->desktop()->screenNumber(QCursor::pos())]->geometry().width();
+    int screenHeight = QApplication::screens()[qApp->desktop()->screenNumber(QCursor::pos())]->geometry().height();
 
-    rect.setX(cursor().pos().x());
-    rect.setY(cursor().pos().y());
+    int cursorX = cursor().pos().x() - QApplication::screens()[qApp->desktop()->screenNumber(QCursor::pos())]->geometry().x();
+    int cursorY = cursor().pos().y() - QApplication::screens()[qApp->desktop()->screenNumber(QCursor::pos())]->geometry().y();
+
+    rect.setX(cursorX);
+    rect.setY(cursorY);
     rect.setWidth(3);
     rect.setHeight(3);
 
     start = QPoint(rect.x(), rect.y());
     selecting = false;
 
-    QScreen* screen = QApplication::primaryScreen();
-    screenshot = screen->grabWindow(QApplication::desktop()->winId());
+    takeScreenshot();
+
     image->setPixmap(screenshot);
     image->setVisible(!settings.activeGrabbing);
 
@@ -129,15 +172,18 @@ void PartScreenshoter::makeScreenshot() {
 }
 
 void PartScreenshoter::moveOverlays(bool isSelecting) {
-    int screenWidth = QApplication::desktop()->width();
-    int screenHeight = QApplication::desktop()->height();
+    int screenWidth = QApplication::screens()[qApp->desktop()->screenNumber(QCursor::pos())]->geometry().width();
+    int screenHeight = QApplication::screens()[qApp->desktop()->screenNumber(QCursor::pos())]->geometry().height();
+
+    int cursorX = cursor().pos().x() - QApplication::screens()[qApp->desktop()->screenNumber(QCursor::pos())]->geometry().x();
+    int cursorY = cursor().pos().y() - QApplication::screens()[qApp->desktop()->screenNumber(QCursor::pos())]->geometry().y();
 
     if (!isSelecting) {
         topLeftOverlay->move(-1, -1);
         topLeftOverlay->resize(screenWidth + 2, screenHeight + 2);
 
-        horizontalLine->move(0, cursor().pos().y() - 1);
-        verticalLine->move(cursor().pos().x() - 1, 0);
+        horizontalLine->move(0, cursorY - 1);
+        verticalLine->move(cursorX - 1, 0);
     } else {
         topLeftOverlay->move(-1, -1);
         topLeftOverlay->resize(rect.x() + rect.width() + 1, rect.y() + 2);
@@ -189,8 +235,8 @@ bool PartScreenshoter::eventFilter(QObject* obj, QEvent* event) {
     }
 
     if (event->type() == QEvent::HoverMove) {
-        int tempX = ((QHoverEvent*) event)->pos().x();
-        int tempY = ((QHoverEvent*) event)->pos().y();
+        int tempX = ((QHoverEvent*) event)->pos().x();// - QApplication::screens()[qApp->desktop()->screenNumber(QCursor::pos())]->geometry().x();
+        int tempY = ((QHoverEvent*) event)->pos().y();// - QApplication::screens()[qApp->desktop()->screenNumber(QCursor::pos())]->geometry().y();
 
         if (tempX < start.x()) {
             rect.setX(tempX);
@@ -216,8 +262,7 @@ bool PartScreenshoter::eventFilter(QObject* obj, QEvent* event) {
         if (!selecting) return QMainWindow::eventFilter(obj, event);
 
         if (settings.activeGrabbing) {
-            QScreen* screen = QApplication::primaryScreen();
-            screenshot = screen->grabWindow(QApplication::desktop()->winId());
+            takeScreenshot();
         }
 
         QImage temp = QImage(rect.width(), rect.height(), QImage::Format_RGB32);
@@ -229,6 +274,10 @@ bool PartScreenshoter::eventFilter(QObject* obj, QEvent* event) {
 
         QPixmap pixmap = QPixmap::fromImage(temp);
 
+        if (settings.autoSend) {
+            sendToImgur();
+        }
+
         if (settings.autoSave) {
             screenshot = pixmap;
             saveToFile(settings.saveDir, settings.saveFormat, settings.saveQuality);
@@ -238,12 +287,7 @@ bool PartScreenshoter::eventFilter(QObject* obj, QEvent* event) {
             QApplication::clipboard()->setImage(temp);
         }
 
-        if (settings.autoSend) {
-            //как-нибудь потом
-        }
-
         playSound();
-
 
         selecting = false;
         close();

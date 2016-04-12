@@ -64,6 +64,8 @@ void Init::createTrayIcon() {
         popup->close();
         close();
         qApp->exit();
+        QApplication::quit();
+        exit(0);
     });
 
     QMenu* trayMenu = new QMenu(this);
@@ -78,26 +80,24 @@ void Init::createTrayIcon() {
 }
 
 bool Init::checkOpened() {
-    QTcpSocket socket;
+    QTcpSocket socket(this);
     socket.connectToHost("127.0.0.1", 63223);
-    if (!socket.waitForConnected(100))
+    if (!socket.waitForConnected(100)) {
+        socket.deleteLater();
         return false;
-    else return true;
+    } else {
+        socket.deleteLater();
+        return true;
+    }
 }
 
 void Init::startListen() {
-    QTcpServer server;
-    server.listen(QHostAddress::Any, 63223);
-
-    QEventLoop loop;
-    loop.exec();
+    server = new QTcpServer(this);
+    server->listen(QHostAddress::Any, 63223);
 }
 
 void Init::settingsSaved(Settings settings) {
     this->settings = settings;
-
-    shortcutPart->setShortcut(QKeySequence(settings.hotkeyForPart));
-    shortcutFull->setShortcut(QKeySequence(settings.hotkeyForFull));
 
     QFile file(QDir::homePath() + "/.g9/config.bin");
     file.open(QIODevice::WriteOnly);
@@ -110,6 +110,9 @@ void Init::settingsSaved(Settings settings) {
     version.open(QIODevice::WriteOnly);
     version.write(VERSION.toStdString().c_str());
     version.close();
+
+    shortcutPart->setShortcut(QKeySequence(settings.hotkeyForPart));
+    shortcutFull->setShortcut(QKeySequence(settings.hotkeyForFull));
 }
 
 void Init::loadSettings() {
@@ -147,13 +150,13 @@ QDataStream& operator>>(QDataStream& in, Settings& settings) {
 void Init::hotkey1clicked() {
     popup->close();
 
-    fullScr->setSettings(settings);
+    fullScr = new FullScreenshoter(settings);
     fullScr->makeScreenshot();
 }
 
 void Init::hotkey2clicked() {
     popup->close();
 
-    partScr->setSettings(settings);
+    partScr = new PartScreenshoter(settings);
     partScr->makeScreenshot();
 }
