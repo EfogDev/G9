@@ -290,7 +290,7 @@ bool PartScreenshoter::eventFilter(QObject* obj, QEvent* event) {
         playSound();
 
         selecting = false;
-        close();
+        hide();
     }
 
     return QMainWindow::eventFilter(obj, event);
