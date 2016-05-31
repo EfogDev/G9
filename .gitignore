@@ -12,5 +12,6 @@ Source/CMakeFiles/
 Source/G9
 Source/cmake_install.cmake
 Source/qrc_resources.cpp
+Source/callgrind.*
 Build/*
 build*
