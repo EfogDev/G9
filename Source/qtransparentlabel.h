@@ -16,7 +16,6 @@ class QTransparentLabel: public QLabel {
         QRgb color;
         QRgb frameColor;
         QPainter* paint;
-        void paintEvent(QPaintEvent *e);
 };
 
 #endif // QTRANSPARENTLABLE_H
