@@ -49,7 +49,7 @@ void FullScreenshoter::saveToFile(QString filename, QString format, int quality)
 }
 
 void FullScreenshoter::sendToImgur() {
-    QByteArray base64image;
+    /*QByteArray base64image;
     QBuffer buffer(&base64image);
     buffer.open(QIODevice::WriteOnly);
     screenshot.save(&buffer, "PNG", 100);
@@ -67,15 +67,15 @@ void FullScreenshoter::sendToImgur() {
     request.setRawHeader("Authorization", "Client-ID 9a2331b493dfbb6");
     manager->post(request, data);
 
-    popup = new PopupWindow("Информация", "Отправляю на IMGUR...");
-    popup->show();
+    //popup = new PopupWindow("Информация", "Отправляю на IMGUR...");
+    //popup->show();
 
     connect(manager, &QNetworkAccessManager::finished, [=] (QNetworkReply* reply) {
         QApplication::clipboard()->setText(reply->readAll());
 
-        popup = new PopupWindow("Информация", "Скриншот загружен, ссылка скопирована.");
-        popup->show();
-    });
+        //popup = new PopupWindow("Информация", "Скриншот загружен, ссылка скопирована.");
+        //popup->show();
+    });*/
 }
 
 void FullScreenshoter::playSound() {

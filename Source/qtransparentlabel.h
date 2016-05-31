@@ -2,6 +2,7 @@
 #define QTRANSPARENTLABLE_H
 
 #include <QLabel>
+#include <QPainter>
 
 class QTransparentLabel: public QLabel {
     Q_OBJECT
@@ -14,6 +15,7 @@ class QTransparentLabel: public QLabel {
         double opacity;
         QRgb color;
         QRgb frameColor;
+        QPainter* paint;
         void paintEvent(QPaintEvent *e);
 };
 
