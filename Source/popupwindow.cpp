@@ -51,7 +51,11 @@ PopupWindow::PopupWindow(QString title, QString text, QWidget* parent) : QWidget
 void PopupWindow::lowerOpacity() {
     if (windowOpacity() <= 0) {
         emit finished();
-        close();
+        hide();
+
+        tempTimer->deleteLater();
+        checkTimer->deleteLater();
+        startTimer->deleteLater();
     } else
         setWindowOpacity(windowOpacity() - 0.005);
 }

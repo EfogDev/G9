@@ -44,6 +44,8 @@ class PartScreenshoter: public FullScreenshoter {
         QRect rect;
         QLabel* image;
 
+        int count = 0;
+
         QLabel* horizontalLine;
         QLabel* verticalLine;
 
