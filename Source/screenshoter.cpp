@@ -235,8 +235,8 @@ bool PartScreenshoter::eventFilter(QObject* obj, QEvent* event) {
     }
 
     if (event->type() == QEvent::HoverMove) {
-        int tempX = ((QHoverEvent*) event)->pos().x();// - QApplication::screens()[qApp->desktop()->screenNumber(QCursor::pos())]->geometry().x();
-        int tempY = ((QHoverEvent*) event)->pos().y();// - QApplication::screens()[qApp->desktop()->screenNumber(QCursor::pos())]->geometry().y();
+        int tempX = ((QHoverEvent*) event)->pos().x();
+        int tempY = ((QHoverEvent*) event)->pos().y();
 
         if (tempX < start.x()) {
             rect.setX(tempX);

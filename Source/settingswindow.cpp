@@ -355,13 +355,13 @@ void SettingsWindow::saveClicked() {
 
     emit saved(settings);
     (new PopupWindow("Настройки изменены", "Конфигурация была сохранена.", this))->show();
-    close();
+    hide();
 }
 
 void SettingsWindow::cancelClicked() {
-    close();
+    this->hide();
 }
 
 SettingsWindow::~SettingsWindow() {
-    qApp->exit();
+
 }
