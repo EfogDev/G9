@@ -93,7 +93,7 @@ SettingsWindow::SettingsWindow(Settings settings, QWidget *parent): QWidget(pare
     autoCopyCheckBox->adjustSize();
     autoCopyCheckBox->move(40, 175);
 
-    autoSendLabel = new Label("Отправлять на IMGUR (с Ctrl)", mainGroup);
+    autoSendLabel = new Label("Публиковать (с Ctrl)", mainGroup);
     autoSendLabel->adjustSize();
     autoSendLabel->move(62, 204);
     connect(autoSendLabel, SIGNAL(clicked()), this, SLOT(autoSendLabelClicked()));

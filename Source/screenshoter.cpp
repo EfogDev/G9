@@ -18,7 +18,7 @@ void FullScreenshoter::makeScreenshot() {
     takeScreenshot();
 
     if (settings.autoSend) {
-        sendToImgur();
+        share();
     }
 
     if (settings.autoSave) {
@@ -48,34 +48,36 @@ void FullScreenshoter::saveToFile(QString filename, QString format, int quality)
     popup->show();
 }
 
-void FullScreenshoter::sendToImgur() {
-    /*QByteArray base64image;
+void FullScreenshoter::share() {
+    QByteArray base64image;
     QBuffer buffer(&base64image);
     buffer.open(QIODevice::WriteOnly);
     screenshot.save(&buffer, "PNG", 100);
     base64image = base64image.toBase64().toPercentEncoding();
 
-    QByteArray data;
-    QUrlQuery params;
-    params.addQueryItem("type", "base64");
-    params.addQueryItem("image", base64image);
-    data.append(params.toString(QUrl::FullyDecoded).toUtf8());
+    QByteArray data = QString("data=").toUtf8() + base64image;
 
     QNetworkAccessManager* manager = new QNetworkAccessManager();
-    QNetworkRequest request(QUrl("https://api.imgur.com/3/image"));
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "multipart/form-data");
-    request.setRawHeader("Authorization", "Client-ID 9a2331b493dfbb6");
+    QNetworkRequest request(QUrl("http://efog.space/upload"));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
     manager->post(request, data);
 
-    //popup = new PopupWindow("Информация", "Отправляю на IMGUR...");
-    //popup->show();
+    popup = new PopupWindow("Информация", "Публикую в интернете...");
+    popup->show();
 
     connect(manager, &QNetworkAccessManager::finished, [=] (QNetworkReply* reply) {
-        QApplication::clipboard()->setText(reply->readAll());
+        QString data = reply->readAll();
 
-        //popup = new PopupWindow("Информация", "Скриншот загружен, ссылка скопирована.");
-        //popup->show();
-    });*/
+        if (data.indexOf("http") == 0) {
+            QApplication::clipboard()->setText(data);
+
+            popup = new PopupWindow("Информация", "Скриншот загружен, ссылка скопирована.");
+            popup->show();
+        } else {
+            popup = new PopupWindow("Информация", "Ошибка при загрузке скриншота.");
+            popup->show();
+        }
+    });
 }
 
 void FullScreenshoter::playSound() {
@@ -214,6 +216,8 @@ bool PartScreenshoter::eventFilter(QObject* obj, QEvent* event) {
     }
 
     if (event->type() == QEvent::MouseButtonPress) {
+        if (selecting) return QMainWindow::eventFilter(obj, event);
+
         start = QPoint(((QMouseEvent*) event)->x(), ((QMouseEvent*) event)->y());
 
         if (!selecting) {
@@ -274,8 +278,9 @@ bool PartScreenshoter::eventFilter(QObject* obj, QEvent* event) {
 
         QPixmap pixmap = QPixmap::fromImage(temp);
 
-        if (settings.autoSend) {
-            sendToImgur();
+        if (settings.autoSend && (QApplication::keyboardModifiers() & Qt::ControlModifier)) {
+            screenshot = pixmap;
+            share();
         }
 
         if (settings.autoSave) {
